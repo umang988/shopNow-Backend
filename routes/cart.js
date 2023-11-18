@@ -151,13 +151,20 @@ router.put('/updateCart/:id', async (req, res) => {
     try {
         const cartId = req.params.id;
         const updatedItems = req.body.items;
-        console.log(updatedItems)
 
         const cart = await Cart.findById(cartId);
 
         if (!cart) {
             return res.status(404).json({
                 message: 'Cart not found'
+            });
+        }
+
+        if (!updatedItems || updatedItems.length === 0) {
+            await Cart.deleteOne({ _id: cartId });
+            return res.status(200).json({
+                message: 'Cart deleted successfully',
+                result: {}
             });
         }
 
@@ -175,6 +182,7 @@ router.put('/updateCart/:id', async (req, res) => {
         const updatedAmount = updatedItems.reduce((total, cartItem) => {
             const productPrice = cartItem.product.price;
             const quantity = cartItem.quantity;
+            console.log(quantity);
             return total + (productPrice * quantity);
         }, 0);
 
